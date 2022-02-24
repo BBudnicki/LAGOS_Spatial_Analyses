@@ -139,7 +139,7 @@ ggplot(chla_secchi) +
 
 ### Why might this be the case? 
 
-Chlorophyll is used for photosynthesis. Light is required as an input. As depth below the surface increases light decreases. Additionally deeper lakes tend to produce less photosynthetic allgy due to increased mechanical mixing of diffrent water layers.
+Chlorophyll blocks light and obscures the secchi disk. As chlorophyll increases, Secchi depth decreases. Additionally algae are the primary producers of chlorophyll along with weeds. Lakes that have a higher nutrient load leads to more chlorophyll, these dissolved nutrients also tend to cloud waters and obscure secchi disks. Finally, deeper lakes tend to produce less photosynthetic algae due to increased mechanical mixing of different water layers.
 
 
 ## 2 What states have the most data? 
@@ -273,6 +273,7 @@ ggplot(lago_location_summary_join_state, aes(x=count)) +
   scale_x_log10()
 
 ```
+
 This histogram shows the distribution of observations / lake. The 200 observations per lake is somewhat arbitrary. Looking at 10 to 50 observations per lake would capture more than the outlier lakes with an extreme amount of observation activity.
 
 ### 25 observations per lake
