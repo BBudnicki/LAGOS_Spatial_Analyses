@@ -1,7 +1,7 @@
 ---
 title: "LAGOS Spatial Analysis"
-author: "Matthew Ross"
-date: "9/11/2019"
+author: "Brandon Budnicki"
+date: "Created 2/21/2022 Last compiled on `r format(Sys.time(), '%m/%d/%y')`"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -28,7 +28,7 @@ library(USAboundaries) #USA states and counties
 
 ```{r data-read}
 # #Lagos download script
-LAGOSNE::lagosne_get(dest_folder = LAGOSNE:::lagos_path())
+#LAGOSNE::lagosne_get(dest_folder = LAGOSNE:::lagos_path())
 
 
 #Load in lagos
@@ -54,8 +54,7 @@ lake_centers <- lagos$locus
 #View the full dataset
 #View(lake_centers %>% slice(1:100))
 
-spatial_lakes <- st_as_sf(lake_centers,coords=c('nhd_long','nhd_lat'),
-                          crs=4326) %>%
+spatial_lakes <- st_as_sf(lake_centers,coords=c('nhd_long','nhd_lat'), crs=4326) %>%
   st_transform(2163)
 
 #Subset for plotting
@@ -81,6 +80,7 @@ minnesota <- states %>%
   filter(name == 'Minnesota') %>%
   st_transform(2163)
 
+
 #Subset lakes based on spatial position
 minnesota_lakes <- spatial_lakes[minnesota,]
 
@@ -88,7 +88,7 @@ minnesota_lakes <- spatial_lakes[minnesota,]
 minnesota_lakes %>%
   arrange(-lake_area_ha) %>%
     slice(1:1000) %>%
-  mapview(.,zcol = 'lake_area_ha')
+  mapview(.,zcol = 'lake_area_ha') + mapview(minnesota)
 ```
 
 
@@ -96,44 +96,120 @@ minnesota_lakes %>%
 # In-Class work
 
 
-## 1) Show a map outline of Iowa and Illinois (similar to Minnesota map upstream)
+## 1 Map of Iowa & Illinois
+
+Show a map outline of Iowa and Illinois (similar to Minnesota map upstream)
 
 ```{r}
+#Plot all the states to check if they loaded
+#mapview(states)
+iowa <- states %>%
+  filter(name == 'Iowa') %>%
+  st_transform(2163)
+
+illinois <- states %>%
+  filter(name == 'Illinois') %>%
+  st_transform(2163)
+
+mapview(illinois, alpha.regions = 0.4, aplha = 1, col.regions = "yellow") + 
+mapview(iowa, alpha.regions = 0.4, aplha = 1, col.regions = "red")
+
+```
+
+
+```{r}
+#Subset lakes based on spatial position
+iowa_lakes <- spatial_lakes[iowa,]
+
+#Plotting the first 1000 lakes
+mapview(iowa, alpha.regions = 0.4, aplha = 1, col.regions = "red") +
+  iowa_lakes %>%
+  arrange(-lake_area_ha) %>%
+  slice(1:1000) %>%
+  mapview(.,zcol = 'lake_area_ha')
+
 
 
 
 ```
 
 
+```{r}
 
-## 2) Subset LAGOS data to these sites, how many sites are in Illinois and Iowa
-combined? How does this compare to Minnesota?
+#Subset lakes based on spatial position
+illinois_lakes <- spatial_lakes[illinois,]
+
+#Plotting the first 1000 lakes
+mapview(illinois, alpha.regions = 0.4, aplha = 1, col.regions = "yellow") +
+  illinois_lakes %>%
+  arrange(-lake_area_ha) %>%
+  slice(1:1000) %>%
+  mapview(.,zcol = 'lake_area_ha')
+```
+
+
+
+## 2) Subset LAGOS data
+
+Subset LAGOS data to these sites, how many sites are in Illinois and Iowa combined? How does this compare to Minnesota?
 
 ```{r}
+minnesota_length = length(minnesota_lakes$lagoslakeid)
+iowa_illinois_lakes = rbind(illinois_lakes, iowa_lakes)
+iowa_illinois_length = length(iowa_illinois_lakes$lagoslakeid)
+
 
 ```
 
 
-## 3) What is the distribution of lake size in Iowa vs. Minnesota?
+Minnesota has `r minnesota_length` lakes while Iowa & Illinois combined have `r iowa_illinois_length` lakes
 
-- Here I want to see a histogram plot with lake size on x-axis and frequency on 
-y axis (check out geom_histogram)
+
+## 3 What is the distribution of lake size in Iowa vs. Minnesota?
+
+**Here I want to see a histogram plot with lake size on x-axis and frequency on y axis (check out geom_histogram)**
 
 ```{r}
+ggplot(minnesota_lakes, aes(x= lake_area_ha)) + 
+  geom_histogram() + 
+  scale_x_log10(labels = scales::comma)
+
 
 
 ```
 
 
-## 4) Make an interactive plot of lakes in Iowa and Illinois and color them
-by lake area in hectares
+## 4) Lakes in Iowa & Illinois by lake area
+
+Make an interactive plot of lakes in Iowa and Illinois and color them by lake area in hectares
 
 ```{r}
+
+iowa_illinois_map = iowa_illinois_lakes %>%
+  arrange(-lake_area_ha) %>%
+    slice(1:100000) %>%
+  mapview(.,zcol = 'lake_area_ha',  canvas = TRUE) 
+
+mapview(illinois,  canvas = TRUE , alpha.regions = 0.4, aplha = 1, col.regions = "yellow") + 
+  mapview(iowa,  canvas = TRUE , alpha.regions = 0.4, aplha = 1, col.regions = "red") +
+  iowa_illinois_map 
 
 ```
 
 
-## 5) What other data sources might we use to understand how reservoirs and 
-natural lakes vary in size in these three states? 
+## 5) What other data sources might we use to understand how reservoirs and natural lakes vary in size in these three states? 
+
+Ground water & especially water table depth data would be helpful for looking at how the lakes interact with one another. Long term weather & climate (rainfall, snowfall, and Total Solar Radiance) would be helpful in to for understanding water origin & evaporation.
+
+
+# Links
+
+[GitHub](https://github.com/BBudnicki/LAGOS_Spatial_Analyses)
+
+[Assignment 1](https://bbudnicki.github.io/LAGOS_Spatial_Analyses/1_beginning_spatial_analysis.html)
+
+[Assignment 2](https://bbudnicki.github.io/LAGOS_Spatial_Analyses/2_lake_wq_analysis.html)
+
+
 
 
